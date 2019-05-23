@@ -1,30 +1,38 @@
-import os
-from instapy import InstaPy
-from instapy import smart_run
-from instapy import set_workspace
-import random
-from instapy import get_workspace
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
+import xlsxwriter
+# options = Options()
+# options.headless = True
+driver = webdriver.Chrome()#options=options)
+workbook = xlsxwriter.Workbook('E:/inc.xlsx')
+worksheet = workbook.add_worksheet()
+row = 0
+col = 0
+file = open("testfile.txt","r")
+for url in file.readlines():
+    try:
+        driver.get(url)
+        name=driver.find_element_by_xpath("//article/div/header/h1").text
+        print(name)
+        desc=driver.find_element_by_xpath("//article/div/header/p").text
+        print(desc)
+        industry=driver.find_element_by_xpath("//dd[@class='profileCss.singleIndustry']").text
+        print(industry)
+        year=driver.find_element_by_xpath("//dl[contains(.//dt, 'Founded')]/dd").text
+        print(year)
+        location=driver.find_element_by_xpath("//dl[contains(.//dt, 'Location:')]/dd").text
+        print(location)
+        rank=driver.find_element_by_xpath("//dl[contains(.//dt, 'Rank:')]/dd").text
+        print(rank)
+        worksheet.write(row, col, name)
+        worksheet.write(row, col + 1, desc)
+        worksheet.write(row, col + 2, industry)
+        worksheet.write(row, col + 3, year)
+        worksheet.write(row, col + 4, location)
+        worksheet.write(row, col + 5, rank[1:])
+        row += 1
+    except:
+        print("Something went wrong")
 
-follow_likers_of_users = ['ramoswasoffside', 'passporttoearth', 'fav_skies', 'super_photosunsets', 'njsunrise_sunset', 'adventures_shutter', 'myskynow', 'newjerseyisbeautiful', 'igersmood', 'amazingly_sunsets', 'hey_ihadtosnapthat', 'passion_4_living_photos', 'goventureorange', 'onlythebestcapture', 'goandcapturethelight', 'bestpicturesgallery', 'rthouse']
-random.shuffle(follow_likers_of_users)
-# set workspace folder at desired location (default is at your home folder)
-set_workspace(path="./")
-workspace_in_use = get_workspace()
-print(workspace_in_use["path"])
-insta_username=os.environ['username']
-insta_password=os.environ['password']
-print(f"Logging in {insta_username} with {insta_password}")
-# get an InstaPy session!
-session = InstaPy(username=insta_username,
-                      password=insta_password,
-                      headless_browser=True)
-
-
-with smart_run(session):
-    """ Activity flow """
-    # general settings
-    session.set_dont_include(["friend1", "friend2", "friend3"])
-    #session.follow_likers(follow_likers_of_users, photos_grab_amount=int(os.environ['photos_grab_amount']), follow_likers_per_photo=int(os.environ['follow_likers_per_photo']), randomize=False, sleep_delay=int(os.environ['follow_sleep_delay']), interact=False)
-    session.unfollow_users(amount=int(os.environ['unfollow_amount']), allFollowing=True, style="LIFO", unfollow_after=48 * 60 * 60, sleep_delay=int(os.environ['unfollow_sleep_delay']))
-    # activity
-    #session.like_by_tags(["natgeo"], amount=10)
+workbook.close()
